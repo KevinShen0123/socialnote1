@@ -95,11 +95,13 @@ app.post('/api/createposts', (req, res) => {
   console.log("poster name that:",{postername})
   const likes=req.body.likes;
   const favorites=req.body.favorites;
+  const currentTime = new Date();
   const newPost=new Posts({
     posttext:posttext,
     postername:postername,
     likes:likes,
-    favorites:favorites
+    favorites:favorites,
+    posttime:currentTime
   })
   newPost.save()
   .then(() => {
@@ -133,7 +135,8 @@ app.post('/api/readpost', (req, res) => {
 app.post('/api/updatepostlikes', (req, res) => {
   var postIndex = parseInt(req.body.index);
   const newLikeNum = req.body.newlikenum;
-  
+  const likerarray=req.body.array1;
+  console.log("likers?"+likerarray);
   Posts.find()
     .then((posts) => {
       console.log(posts.length);
@@ -142,6 +145,14 @@ app.post('/api/updatepostlikes', (req, res) => {
         posts = posts.map((post, index) => {
           if (index === postIndex) {
             post.likes = newLikeNum;
+            console.log(post.likers);
+            for(var i=0;i<likerarray.length;i++){
+              console.log(likerarray[i])
+              if(!post.likers.includes(likerarray[i].toString())){
+                console.log("yes??????")
+                post.likers.push(likerarray[i]);
+              }
+            }
             post.save();
           }
         });

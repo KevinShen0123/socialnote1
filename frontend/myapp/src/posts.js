@@ -11,7 +11,10 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
   const [posttext, setPosttext] = useState('');
   const [likes, setLikes] = useState('0');
   const[favorites,setFavorites]=useState('0');
+  const[likers,setLikers]=useState([]);
+  const[favoriters,setFavoriters]=useState([]);
   const[post,setPost]=useState([])
+  const[posttime,setPosttime]=useState(new Date());
   const postobj={
     posttext,
     postername,
@@ -41,8 +44,11 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         posttext: item.posttext,
         likes: item.likes,
         favorites: item.favorites,
+        posttime:item.posttime,
+        likers:item.likers,
+        favoriters:item.favoriters
       }));
-
+      console.log("new Posts?"+Object.values(newPosts))
       setPost(newPosts);
     })
     .catch((error) => {
@@ -81,13 +87,16 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         posttext: posttext,
         likes: "0",
         favorites: "0",
+        posttime:new Date(),
+        likers:[],
+        favoriters:[]
       },
     ]);
     const formData = {
       posttext,
       postername,
       likes,
-      favorites
+      favorites,
     };
     console.log("fetch called!!!!!");
     axios
@@ -98,9 +107,11 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         console.log(typeof response.data)
         if(response.data.includes("failed")){
            console.log(response.data)
-           window.location.reload()
            alert("createposts error")
         }else{
+          var obj=document.getElementsByClassName('createposts')[0];
+          obj.value="";
+          window.location.reload();
            console.log("success!!!!!!")
         }
       })
@@ -126,22 +137,32 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
   const handleLikeFL = (event,index) => {
     console.log("Like handler is called!"+index);
     var newlikenum="0"
+    var array1=[]
     const updatedPost = post.map((item, i) => {
       console.log("i is?"+i)
       newlikenum=String(parseInt(item.likes)+1)
-      if (i === index) {
+      console.log("post?"+item);
+      if (i === index&&!item.likers.includes(sessionStorage.getItem('username'))) {
+        console.log("usernameString?"+sessionStorage.getItem('username'))
+        array1.push(sessionStorage.getItem('username'));
         return {
           ...item,
           likes: String(parseInt(item.likes)+1),
           favorites: String(parseInt(item.favorites)),
+          likers:array1
         };
       }
       return item;
     });
+
+    for(var i=0;i<array1.length;i++){
+      console.log("array1new?"+array1[i]);
+    }
     setPost(updatedPost);
     const formData={
       index,
-      newlikenum
+      newlikenum,
+      array1
     };
     axios
       .post('http://localhost:8000/api/updatepostlikes', formData)
@@ -200,6 +221,7 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         <p>{item.posttext}</p>
         <button type="button" onClick={(event) => handleLikeFL(event, index)} >Likes: {item.likes}</button>
          <button type="button"onClick={(event) => handleFavoriteFL(event, index)}>Favorites: {item.favorites}</button>
+         <h2>PostTime:{item.posttime.toString()}</h2>
         </div>
        ))}
     </form>
