@@ -1,3 +1,4 @@
+const Comments=require('./comments')
 const express = require('express');
 const User = require('./models');
 const Posts=require('./posts');
@@ -89,7 +90,7 @@ app.post('/api/register', (req, res) => {
 });
 app.post('/api/createposts', (req, res) => {
   const posttext=req.body.posttext;
-  const postername=req.body.postername;
+  const postername=req.body.npname;
   console.log("poster name is:",postername)
   console.log("poster name are:",typeof postername)
   console.log("poster name that:",{postername})
@@ -144,14 +145,18 @@ app.post('/api/updatepostlikes', (req, res) => {
         // Update the post at the specified index
         posts = posts.map((post, index) => {
           if (index === postIndex) {
-            post.likes = newLikeNum;
+            var newliker=false;
             console.log(post.likers);
             for(var i=0;i<likerarray.length;i++){
               console.log(likerarray[i])
               if(!post.likers.includes(likerarray[i].toString())){
                 console.log("yes??????")
                 post.likers.push(likerarray[i]);
+                newliker=true;
               }
+            }
+            if(newliker==true){
+              post.likes = newLikeNum;
             }
             post.save();
           }
@@ -175,7 +180,7 @@ app.post('/api/updatepostlikes', (req, res) => {
 app.post('/api/updatepostfavorites', (req, res) => {
   var postIndex = parseInt(req.body.index);
   const newFavoriteString = req.body.newFavoriteString;
-  
+  const favoriterrray=req.body.array1;
   Posts.find()
     .then((posts) => {
       console.log(posts.length);
@@ -183,7 +188,13 @@ app.post('/api/updatepostfavorites', (req, res) => {
         // Update the post at the specified index
         posts = posts.map((post, index) => {
           if (index === postIndex) {
-            post.favorites= newFavoriteString;
+            for(var i=0;i<favoriterrray.length;i++){
+              if(!post.favoriters.includes(favoriterrray[i].toString())){
+                post.favorites= newFavoriteString;
+                console.log("yes??????")
+                post.favoriters.push(favoriterrray[i]);
+              }
+            }
             post.save();
           }
         });
@@ -204,7 +215,8 @@ app.post('/api/updatepostfavorites', (req, res) => {
     });
 });
 app.post('/api/updatepassword', (req, res) => {
-  User.findOne({ username: req.body.username })
+  console.log(req.body.username)
+  User.findOne({ username: req.body.sessionName})
     .then((user) => {
       if (user) {
         user.password = req.body.newpassword;
@@ -223,15 +235,66 @@ app.post('/api/updatepassword', (req, res) => {
     });
 });
 app.post('/api/updatepostcontent', (req, res) => {
-  var newpassword=req.body.newpassword;
-  var username=req.body.username;
+ 
   
+});
+app.post('/api/favoriteshistory', (req, res) => {
+  var array1=[]
+  Posts.find()
+  .then((posts) => {
+    posts = posts.map((post, index) => {
+       if(post.favoriters.includes(req.body.username1)){
+          array1.push(post)
+       }
+    });
+    res.send(array1)
+  })
+  .then(() => {
+    console.log('Posts updated successfully');
+    res.sendStatus(200);
+  })
+  .catch((error) => {
+    console.error('Error updating posts:', error);
+    res.sendStatus(500);
+  });
 });
 app.post('/api/addcomments', (req, res) => {
-  
+  const { commentator, ctext, ctime, index } = req.body;
+  Posts.find()
+  .then((posts) => {
+    console.log(posts.length);
+    var postIndex=parseInt(index);
+    if (postIndex >= 0 && postIndex < posts.length) {
+      // Update the post at the specified index
+      posts = posts.map((post, index) => {
+        if (index === postIndex) {
+           const commentsObj=new Comments({
+            commentator:commentator,
+            ctext:ctext,
+            cTime:ctime
+           })
+           commentsObj.save();
+          post.comments.push(commentsObj)
+          post.save();
+        }
+      });
+
+      // Save the updated posts array
+      return Posts.updateMany({}, { $set: { posts } });
+    } else {
+      throw new Error('Invalid post index');
+    }
+  })
+  .then(() => {
+    res.sendStatus(200);
+  })
+  .catch((error) => {
+    console.error('Error updating posts:', error);
+    res.sendStatus(500);
+  });
 });
 app.post('/api/addreadposthistory', (req, res) => {
-  Posts.find({ postername: req.body.username })
+  Posts.find({ postername: req.body.username1 })
   .then((posts) => {
     // Handle the found posts
     console.log(posts);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Link, Navigate, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link, Navigate, Routes, createSearchParams } from 'react-router-dom';
 import './posts.css';
 import logo from "./twitter-logo.png";
 import axios from 'axios';
@@ -15,6 +15,7 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
   const[favoriters,setFavoriters]=useState([]);
   const[post,setPost]=useState([])
   const[posttime,setPosttime]=useState(new Date());
+  const[comments,setComments]=useState([''])
   const postobj={
     posttext,
     postername,
@@ -46,7 +47,8 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         favorites: item.favorites,
         posttime:item.posttime,
         likers:item.likers,
-        favoriters:item.favoriters
+        favoriters:item.favoriters,
+        comments:item.comments
       }));
       console.log("new Posts?"+Object.values(newPosts))
       setPost(newPosts);
@@ -80,10 +82,11 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
   const handleFormSubmit = (event) => {
 
     event.preventDefault();
+    console.log(sessionStorage.getItem('username'));
     setPost([
       ...post,
       {
-        postername: username.toString(),
+        postername: sessionStorage.getItem('username'),
         posttext: posttext,
         likes: "0",
         favorites: "0",
@@ -92,9 +95,11 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         favoriters:[]
       },
     ]);
+    setPostername(sessionStorage.getItem('username'));
+    var npname=sessionStorage.getItem('username');
     const formData = {
       posttext,
-      postername,
+      npname,
       likes,
       favorites,
     };
@@ -185,20 +190,25 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
   const handleFavoriteFL = (event, index) => {
     console.log("favorite handler is called!");
     var newFavoriteString="0";
+    var array1=[];
     const updatedPost = post.map((item, i) => {
-      if (i === index) {
+      if (i === index&&!item.favoriters.includes(sessionStorage.getItem('username'))) {
+        console.log("f???????????");
+        array1.push(sessionStorage.getItem('username'));
         newFavoriteString= String(parseInt(item.favorites) + 1);
         return {
           ...item,
           likes: String(parseInt(item.likes)),
           favorites: String(parseInt(item.favorites) + 1),
+          favoriters:array1
         };
       }
       return item;
     });
     const formData={
       index,
-      newFavoriteString
+      newFavoriteString,
+      array1
     }
     axios
     .post('http://localhost:8000/api/updatepostfavorites', formData)
@@ -211,6 +221,31 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
     });
     setPost(updatedPost);
   };
+  const handleViewComments = (event, index) => {
+    event.preventDefault();
+    //先用index Post 拿到数据，再传送给PostDetail界面
+    // const navigate=useNavigate('/postDetail/${index}');
+    const updatedPost = post.map((item, i) => {
+      if (i === index) {
+        console.log("length here？"+item.comments.length)
+        console.log(item.comments)
+        console.log("yes???????")
+        const postername=item.postername
+        const posttext=item.posttext
+        const likes=item.likes
+        const favorites=item.favorites
+        const likers=item.likers
+        const favoriters=item.favoriters
+        const comments=item.comments
+        const posttime=item.posttime
+        console.log("Time here"+posttime)
+      //  navigate('/postDetail',{postername,posttext,likes,favorites,posttime,likers,favoriters,comments})
+       sessionStorage.setItem("comments",JSON.stringify(comments))
+       navigate({pathname:'/postDetail',search:createSearchParams({"index":i,"postername":postername,"posttext":posttext,"likes":likes,"favorites":favorites,"posttime":posttime,"likers":likers,"favoriters":favoriters}).toString()})
+      }
+      return item;
+    });
+  }
   return (
     <form onSubmit={handleFormSubmit}>
       <textarea className="createposts" onChange={handlePostText}></textarea>
@@ -221,6 +256,7 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         <p>{item.posttext}</p>
         <button type="button" onClick={(event) => handleLikeFL(event, index)} >Likes: {item.likes}</button>
          <button type="button"onClick={(event) => handleFavoriteFL(event, index)}>Favorites: {item.favorites}</button>
+         <button type="button" onClick={(event) => handleViewComments(event, index)}>View Comments</button>
          <h2>PostTime:{item.posttime.toString()}</h2>
         </div>
        ))}

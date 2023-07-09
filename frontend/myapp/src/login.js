@@ -9,6 +9,8 @@ import Friends from "./friends"
 import Profile from "./profile"
 import { useNavigate } from 'react-router-dom';
 import MyPostHistory from './MyPosthistory';
+import PostDetail from './postDetail'
+import Favorites from './favorites'
 function PrivateRoute({ component: Component, authenticated, ...rest }) {
   return (
     <Route
@@ -189,6 +191,12 @@ function Login() {
             {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
           </Route>
           <Route exact path="/myposthistory"  element={<MyPostHistory authenticated={authenticated} setAuthenticated={setAuthenticated} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>}> 
+            {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
+          </Route>
+          <Route exact path="/postDetail"  element={<PostDetail authenticated={authenticated} setAuthenticated={setAuthenticated} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>}> 
+            {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
+          </Route>
+          <Route exact path="/viewFavorites"  element={<Favorites authenticated={authenticated} setAuthenticated={setAuthenticated} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>}> 
             {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
           </Route>
         </Routes>

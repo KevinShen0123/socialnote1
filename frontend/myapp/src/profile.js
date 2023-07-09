@@ -32,8 +32,9 @@ function Profile({ authenticated, setAuthenticated, username, setUsername, passw
    if(input1.style.visibility=='visible'){
      const newpassword=input1.value;
      console.log("new password here?"+newpassword)
+     var sessionName=sessionStorage.getItem('username');
      const formData={
-      username,
+      sessionName,
       newpassword
      }
      axios
@@ -66,6 +67,10 @@ function Profile({ authenticated, setAuthenticated, username, setUsername, passw
     event.preventDefault();
     navigate('/myposthistory');
   };
+  const handleViewFavorites=(event)=>{
+    event.preventDefault();
+    navigate('/viewFavorites')
+  }
 
   return (
     <form onSubmit={handleFormSubmit}>
@@ -82,6 +87,7 @@ function Profile({ authenticated, setAuthenticated, username, setUsername, passw
       <input style={{ visibility: 'hidden' }} className="sinput" type="text" placeholder='what is your new signature?' />
       <input type="submit" text="submit profile modification"/>
       <button type="button" onClick={handleViewHistory}>View My Post History</button>
+      <button type="button" onClick={handleViewFavorites}>View My Favorites Collections</button>
     </form>
   );
 }

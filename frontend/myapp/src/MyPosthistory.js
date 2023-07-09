@@ -30,8 +30,9 @@ function MyPostHistory({ authenticated, setAuthenticated, username, setUsername,
     
         // Perform any initialization or side effects here
         console.log('Component loaded');
+        var username1=sessionStorage.getItem('username');
         const formData={
-          username
+          username1
         }
         axios
         .post('http://localhost:8000/api/addreadposthistory', formData)
