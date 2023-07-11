@@ -260,6 +260,7 @@ app.post('/api/favoriteshistory', (req, res) => {
 });
 app.post('/api/addcomments', (req, res) => {
   const { commentator, ctext, ctime, index } = req.body;
+  console.log("add comments called!!!!!!")
   Posts.find()
   .then((posts) => {
     console.log(posts.length);
@@ -307,3 +308,35 @@ app.post('/api/addreadposthistory', (req, res) => {
     console.error(error);
   });
 });
+app.post('/api/addreadpostcomments', (req, res) => {
+  console.log("Problem!!!!!!!!")
+  const { index } = req.body;
+  Posts.find()
+  .then((posts) => {
+    console.log(posts.length);
+    console.log(index)
+    var postIndex=parseInt(index);
+    if (postIndex >= 0 && postIndex < posts.length) {
+      // Update the post at the specified index
+      posts = posts.map((post, index) => {
+        if (index === postIndex) {
+          console.log("clength"+post.comments.length)
+           res.send(post.comments)
+        }
+      });
+
+      // Save the updated posts array
+      // return Posts.updateMany({}, { $set: { posts } });
+    } else {
+      throw new Error('Invalid post index');
+    }
+  })
+  .then(() => {
+    // res.sendStatus(200);
+  })
+  .catch((error) => {
+    console.error('Error updating posts:', error);
+    res.sendStatus(500);
+  });
+});
+

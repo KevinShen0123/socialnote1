@@ -39,6 +39,7 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
     .post('http://localhost:8000/api/readpost', formData)
     .then((response) => {
       // Handle the response
+      console.log("kidding????????")
       console.log(response.data)
       const newPosts = response.data.map((item) => ({
         postername: item.postername,
@@ -225,7 +226,9 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
     event.preventDefault();
     //先用index Post 拿到数据，再传送给PostDetail界面
     // const navigate=useNavigate('/postDetail/${index}');
+    console.log("Called>>>>>>>>>>")
     const updatedPost = post.map((item, i) => {
+      console.log("i"+i)
       if (i === index) {
         console.log("length here？"+item.comments.length)
         console.log(item.comments)
@@ -241,7 +244,21 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
         console.log("Time here"+posttime)
       //  navigate('/postDetail',{postername,posttext,likes,favorites,posttime,likers,favoriters,comments})
        sessionStorage.setItem("comments",JSON.stringify(comments))
-       navigate({pathname:'/postDetail',search:createSearchParams({"index":i,"postername":postername,"posttext":posttext,"likes":likes,"favorites":favorites,"posttime":posttime,"likers":likers,"favoriters":favoriters}).toString()})
+       const params = new URLSearchParams();
+      params.append('index', i);
+      params.append('postername', postername);
+      params.append('posttext', posttext);
+       params.append('likes', likes);
+      params.append('favorites', favorites);
+      params.append('posttime', posttime);
+      params.append('likers', likers);
+      params.append('favoriters', favoriters);
+      params.append('comments', JSON.stringify(comments));
+
+navigate({
+  pathname: '/postDetail',
+  search: params.toString(),
+});
       }
       return item;
     });
