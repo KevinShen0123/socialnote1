@@ -254,7 +254,6 @@ function Posts({ authenticated, setAuthenticated, username, setUsername, passwor
       params.append('likers', likers);
       params.append('favoriters', favoriters);
       params.append('comments', JSON.stringify(comments));
-
 navigate({
   pathname: '/postDetail',
   search: params.toString(),
@@ -263,21 +262,48 @@ navigate({
       return item;
     });
   }
+  const handleSeeProfile = (event, index,name) => {
+    event.preventDefault();
+    const formData={
+      name
+    }
+    const params = new URLSearchParams();
+    params.append('name', name);
+    navigate({
+      pathname: '/fPost',
+      search: params.toString(),
+    });
+  }
   return (
     <form onSubmit={handleFormSubmit}>
-      <textarea className="createposts" onChange={handlePostText}></textarea>
-      <button type="submit" className="createNewPost">create new post</button>
-      {post.map((item,index) => (
+  <textarea className="createposts" onChange={handlePostText}></textarea>
+  <button type="submit" className="createNewPost">create new post</button>
+  {post.map((item, index) => {
+    if (item.postername === sessionStorage.getItem('username')) {
+      return (
         <div key={index}>
-        <h2>{item.postername}</h2>
-        <p>{item.posttext}</p>
-        <button type="button" onClick={(event) => handleLikeFL(event, index)} >Likes: {item.likes}</button>
-         <button type="button"onClick={(event) => handleFavoriteFL(event, index)}>Favorites: {item.favorites}</button>
-         <button type="button" onClick={(event) => handleViewComments(event, index)}>View Comments</button>
-         <h2>PostTime:{item.posttime.toString()}</h2>
+          <h2>{item.postername}</h2>
+          <p>{item.posttext}</p>
+          <button type="button" onClick={(event) => handleLikeFL(event, index)}>Likes: {item.likes}</button>
+          <button type="button" onClick={(event) => handleFavoriteFL(event, index)}>Favorites: {item.favorites}</button>
+          <button type="button" onClick={(event) => handleViewComments(event, index)}>View Comments</button>
+          <h2>PostTime: {item.posttime.toString()}</h2>
         </div>
-       ))}
-    </form>
+      );
+    } else {
+      return (
+        <div key={index}>
+          <h2>{item.postername}<button className="seeProfile" onClick={(event) => handleSeeProfile(event, index, item.postername)}>See Posts History</button></h2>
+          <p>{item.posttext}</p>
+          <button type="button" onClick={(event) => handleLikeFL(event, index)}>Likes: {item.likes}</button>
+          <button type="button" onClick={(event) => handleFavoriteFL(event, index)}>Favorites: {item.favorites}</button>
+          <button type="button" onClick={(event) => handleViewComments(event, index)}>View Comments</button>
+          <h2>PostTime: {item.posttime.toString()}</h2>
+        </div>
+      );
+    }
+  })}
+</form>
   );
 }
 

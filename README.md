@@ -1,5 +1,4 @@
-Add comments, edit post, reply comments, UI, profile related settings, post searches, trending posts.
-7.8 
-edit post, UI,add comments,reply comments
-7.9
- profile related settings,post searches,trending posts
+functions Remained:
+1.Post search bar, trending posts(7.12)
+2.add friends, profile settings, friends page(7.11)
+3. Finetune UI and deployed(7.13)

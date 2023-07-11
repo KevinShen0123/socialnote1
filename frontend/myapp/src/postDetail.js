@@ -71,7 +71,7 @@ function PostDetail({ authenticated, setAuthenticated, username, setUsername, pa
     var commentator = sessionStorage.getItem('username');
     var ctime = new Date();
     var ctext = carea.value;
-  
+    carea.value="";
     const formData = {
       commentator,
       ctext,

@@ -377,4 +377,89 @@ app.post('/api/addreplycomments', (req, res) => {
       res.sendStatus(500);
     });
 });
+app.post('/api/addconnection', (req, res) => {
+ const friendname=req.body.username1;
+ const myname=req.body.myname;
+ User.findOne({ username: myname})
+ .then((user) => {
+   if (user) {
+      user.friends.push(friendname);
+     return user.save();
+   } else {
+     throw new Error('User not found');
+   }
+ })
+ .then((updatedUser) => {
+   // sessionStorage.setItem('password', updatedUser.password);
+   res.sendStatus(200);
+ })
+ .catch((error) => {
+   console.error('Error updating password:', error);
+   res.sendStatus(500);
+ });
+});
+app.post('/api/readfriends', (req, res) => {
+  const myname = req.body.myname;
+  User.find({ $or: [{ username: myname }, { friends: myname }] })
+    .then((users) => {
+      // Find the index of the user with the matching myname
+      const index = users.findIndex(user => user.username === myname);
+      if (index !== -1) {
+        // Remove the user from the current position
+        const user = users.splice(index, 1)[0];
+        // Add the user at the first position in the array
+        users.unshift(user);
+      }
+      res.send(users);
+    })
+    .catch((error) => {
+      console.error('Error retrieving users:', error);
+      res.sendStatus(500);
+    });
+});
+app.post('/api/acceptfriends', (req, res) => {
+  const myusername = req.body.myusername;
+  const friendname = req.body.friendName;
+  console.log("friend????"+friendname)
+  console.log("users????")
+  User.findOne({ username: myusername })
+    .then((myUser) => {
+      if (!myUser) {
+        throw new Error('User not found');
+      }
+      
+      User.findOne({ username: friendname })
+        .then((friendUser) => {
+          if (!friendUser) {
+            throw new Error('Friend not found');
+          }
 
+          const isFriend = myUser.friends.includes(friendUser.username);
+          
+          if (!isFriend) {
+            myUser.friends.push(friendUser.username);
+            // friendUser.friends.push(myUser.username);
+          }
+          if(!friendUser.friends.includes(myUser.friendname)){
+            friendUser.friends.push(myUser.username);
+          }
+
+          Promise.all([myUser.save(), friendUser.save()])
+            .then(() => {
+              res.sendStatus(200);
+            })
+            .catch((error) => {
+              console.error('Error saving users:', error);
+              res.sendStatus(500);
+            });
+        })
+        .catch((error) => {
+          console.error('Error finding friend user:', error);
+          res.sendStatus(500);
+        });
+    })
+    .catch((error) => {
+      console.error('Error finding my user:', error);
+      res.sendStatus(500);
+    });
+});
