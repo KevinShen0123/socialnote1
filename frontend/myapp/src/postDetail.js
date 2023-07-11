@@ -6,9 +6,9 @@ function PostDetail({ authenticated, setAuthenticated, username, setUsername, pa
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   // const[comments,setComments]=useState([]);
-  console.log("hhhhhhh")
-  console.log(authenticated)
-  console.log("YYYYYYY")
+  // console.log("hhhhhhh")
+  // console.log(authenticated)
+  // console.log("YYYYYYY")
   const {
     index,
     postername,
@@ -24,10 +24,10 @@ function PostDetail({ authenticated, setAuthenticated, username, setUsername, pa
   // const comments = commentsParam ? commentsParam : [];
   const  comments2=JSON.parse(comments);
   const[commentss,setCommentss]=useState(JSON.parse(comments));
-  console.log("plane")
-  console.log(typeof comments)
-  console.log(comments)
-  console.log("car")
+  // console.log("plane")
+  // console.log(typeof comments)
+  // console.log(comments)
+  // console.log("car")
     const formData={
       index
     }
@@ -46,7 +46,7 @@ function PostDetail({ authenticated, setAuthenticated, username, setUsername, pa
       }
     };
   
-    const intervalId = setInterval(fetchData, 500);
+    const intervalId = setInterval(fetchData, 100);
   
     // Clean up the interval when the component is unmounted or the effect is re-executed
     return () => clearInterval(intervalId);
@@ -96,15 +96,74 @@ function PostDetail({ authenticated, setAuthenticated, username, setUsername, pa
         // Update the state with the new comment
         setCommentss(prevComments => [...prevComments, newComment]);
         console.log("cslength?"+commentss.length)
-        window.location.reload();
+        // window.location.reload();
       })
       .catch((error) => {
         // Handle any errors
         // console.error(error);
       });
   }
-  function handleReply(){
-   console.log("Reply is Called!!!!!!!!!!!!!!!!!!!");
+  const handleReply = (event,myindex) => {
+    event.preventDefault();
+    var textarea = document.getElementsByClassName(`rt-${myindex}`)[0];
+    textarea.style.visibility = "hidden";
+    textarea.style.display = "none";
+    var textbutton = document.getElementsByClassName(`rt-${myindex}`)[0];
+    textbutton.style.visibility = "hidden";
+    textbutton.style.display = "none";
+    //send index and comment text to backend, windows.location.reload()
+    var commentator=""
+    const cItems = commentss.map((mycomment, commentindex) => {
+      if (commentindex==myindex) {
+        commentator=commentss[commentindex].commentator;
+        return 1;
+      }
+    });
+    var ctext="@"+commentator;
+    ctext+=document.getElementsByClassName(`rt-${myindex}`)[0].value;
+    var newcommentator=sessionStorage.getItem('username');
+    var newCTime=new Date();
+    commentator=newcommentator;
+    var ctime=newCTime;
+    var commentindex=myindex;
+    console.log("kidding me?????"+commentindex==index);
+    const formData = {
+      commentator,
+      ctext,
+      ctime,
+      index,
+      commentindex
+    };
+    axios
+    .post('http://localhost:8000/api/addreplycomments', formData)
+    .then((response) => {
+      // Handle the response
+      console.log("successComment!!!!!!!!!!!"+commentindex);
+
+      // Create a new comment object
+      const newComment = {
+        commentator,
+        ctime,
+        ctext
+      };
+      // Update the state with the new comment
+      setCommentss(prevComments => [...prevComments, newComment]);
+      console.log("cslength?"+commentss.length)
+      // window.location.reload();
+    })
+    .catch((error) => {
+      // Handle any errors
+      // console.error(error);
+      console.log("error??????????????????"+error)
+    });
+  }
+  function handleReplyV(commentIndex) {
+    var textarea = document.getElementsByClassName(`rt-${commentIndex}`)[0];
+    textarea.style.visibility = "visible";
+    textarea.style.display = "block";
+    var textbutton = document.getElementsByClassName(`rb-${commentIndex}`)[0];
+    textbutton.style.visibility = "visible";
+    textbutton.style.display = "block";
   }
   return (
     <div>
@@ -115,14 +174,20 @@ function PostDetail({ authenticated, setAuthenticated, username, setUsername, pa
       <h2>PostTime: {posttime.toString()}</h2>
       <h2>Comments:<button type="button" onClick={handleComments}>Add Comments</button></h2>
       <textarea className="ctext" ></textarea>
-      {commentss.map((itemc, index) => (
-        <div key={index}>
-           <h2 className="ctatorname">{itemc.commentator}</h2>
-          <h2 className="mycomments">{itemc.ctext}</h2>
-          <h2 className="mycommentsTime">{itemc.cTime}</h2>
-          <button className="replycomments" onClick={handleReply}>Reply</button>
-        </div>
-      ))}
+      {commentss.map((itemc, commentIndex) => (
+  <div key={commentIndex}>
+    <h2 className="ctatorname">{itemc.commentator}</h2>
+    <h2 className="mycomments">{itemc.ctext}</h2>
+    <h2 className="mycommentsTime">{itemc.cTime}</h2>
+    <button className="replycomments" onClick={() => handleReplyV(commentIndex)}>
+      Reply
+    </button>
+    <textarea className={`rt-${commentIndex}`} style={{ visibility: 'hidden', display: 'none' }}></textarea>
+    <button className={`rb-${commentIndex}`} style={{ visibility: 'hidden', display: 'none' }} onClick={(event) => handleReply(event, commentIndex)}>
+      Send Reply
+    </button>
+  </div>
+))}
     </div>
   );
 }

@@ -339,4 +339,42 @@ app.post('/api/addreadpostcomments', (req, res) => {
     res.sendStatus(500);
   });
 });
+// app.post('/api/addreplycomments',(req,res)=>{
+  
+// })
+app.post('/api/addreplycomments', (req, res) => {
+  const { commentator, ctext, ctime, index, commentindex } = req.body;
+  console.log("add comments called!!!!!!")
+  Posts.find()
+    .then((posts) => {
+      console.log(posts.length);
+      var postIndex = parseInt(index);
+      var commentIndex = parseInt(commentindex);
+      if (postIndex >= 0 && postIndex < posts.length) {
+        // Update the post at the specified index
+        const post = posts[postIndex];
+        const commentsObj = new Comments({
+          commentator: commentator,
+          ctext: ctext,
+          cTime: ctime
+        });
+        commentsObj.save();
+        console.log("comment?????"+commentindex)
+        post.comments.splice(commentIndex+1, 0, commentsObj);
+        post.save();
+
+        // Save the updated posts array
+        return Posts.updateMany({}, { $set: { posts } });
+      } else {
+        throw new Error('Invalid post index');
+      }
+    })
+    .then(() => {
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      console.error('Error updating posts:', error);
+      res.sendStatus(500);
+    });
+});
 
