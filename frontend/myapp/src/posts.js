@@ -273,11 +273,31 @@ navigate({
       pathname: '/fPost',
       search: params.toString(),
     });
+    
+  }
+  const handleSearchPosts = (event, index) => {
+    event.preventDefault();
+    var searchtext=document.getElementsByClassName('searchposts')[0].value;
+    const params = new URLSearchParams();
+    params.append('searchtext',searchtext);
+    navigate({
+      pathname: '/searchresult',
+      search: params.toString(),
+    });
+  }
+  const handleTrendingPosts=(event,index)=>{
+    event.preventDefault();
+    navigate('/trendingposts');
   }
   return (
     <form onSubmit={handleFormSubmit}>
+      <button type="button" onClick={handleTrendingPosts}>see Trending Posts</button>
+  <textarea className="searchposts" onChange={handlePostText}></textarea>
+  <button type="button" className="searchPost" onClick={handleSearchPosts}>search posts</button>
+  <div>
   <textarea className="createposts" onChange={handlePostText}></textarea>
   <button type="submit" className="createNewPost">create new post</button>
+  </div>
   {post.map((item, index) => {
     if (item.postername === sessionStorage.getItem('username')) {
       return (

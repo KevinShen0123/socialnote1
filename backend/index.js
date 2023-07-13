@@ -463,3 +463,69 @@ app.post('/api/acceptfriends', (req, res) => {
       res.sendStatus(500);
     });
 });
+app.post('/api/searchposts', (req, res) => {
+  console.log("search called!!!!!!");
+  var searchtext = req.body.searchtext;
+  Posts.find({})
+    .then(posts => {
+      let matchedPosts = new Map();
+
+      posts.forEach(post => {
+        const posttext = post.posttext;
+
+        for (let i = 0; i < searchtext.length; i++) {
+          let a = false;
+
+          for (let j = i + 1; j <= searchtext.length; j++) {
+            const substring = searchtext.slice(i, j);
+
+            if (posttext.includes(substring)) {
+              const score = substring.length;
+
+              if (!matchedPosts.has(post._id) || score > matchedPosts.get(post._id).score) {
+                matchedPosts.set(post._id, { post: { ...post.toObject() }, score });
+              }
+
+              a = true;
+            }
+          }
+
+          if (a) {
+            break;
+          }
+        }
+      });
+
+      const rankedPosts = Array.from(matchedPosts.values())
+        .sort((a, b) => b.score - a.score)
+        .map(matchedPost => matchedPost.post)
+        .slice(0,5);
+       console.log(rankedPosts)
+      res.send(rankedPosts);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send('An error occurred');
+    });
+})
+app.post('/api/trendingposts', (req, res) => {
+  console.log("search called!!!!!!");
+  var searchtext = req.body.searchtext;
+  Posts.find({})
+    .then(posts => {
+      const rankedPosts = posts
+        .map(post => {
+          const score = post.likes + post.favorites;
+          return { post: { ...post.toObject() }, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .map(matchedPost => matchedPost.post)
+        .slice(0, 5); // Return only the first 5 ranked posts
+
+      res.send(rankedPosts);
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).send('An error occurred');
+    });
+});

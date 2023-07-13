@@ -12,6 +12,8 @@ import MyPostHistory from './MyPosthistory';
 import PostDetail from './postDetail'
 import Favorites from './favorites'
 import FPost from "./FPost"
+import SearchResult from './searchresult';
+import TrendingPosts from './TrendingPosts';
 function PrivateRoute({ component: Component, authenticated, ...rest }) {
   return (
     <Route
@@ -28,9 +30,7 @@ function PrivateRoute({ component: Component, authenticated, ...rest }) {
 }
 
 function LoginForm({ authenticated, setAuthenticated, username, setUsername, password, setPassword }) {
-  // const [username, setUsername] = useState('');
-  // const [password, setPassword] = useState('');
-  // const [authenticated, setAuthenticated] = useState(false);
+
   const navigate = useNavigate();
   const handleFormSubmit = (event) => {
     console.log(authenticated)
@@ -201,6 +201,12 @@ function Login() {
             {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
           </Route>
           <Route exact path="/fPost"  element={<FPost authenticated={authenticated} setAuthenticated={setAuthenticated} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>}> 
+            {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
+          </Route>
+          <Route exact path="/searchresult"  element={<SearchResult authenticated={authenticated} setAuthenticated={setAuthenticated} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>}> 
+            {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
+          </Route>
+          <Route exact path="/trendingposts"  element={<TrendingPosts authenticated={authenticated} setAuthenticated={setAuthenticated} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>}> 
             {/* <LoginForm handleFormSubmit={handleFormSubmit} handleUsernameChange={handleUsernameChange} handlePasswordChange={handlePasswordChange} /> */}
           </Route>
         </Routes>
